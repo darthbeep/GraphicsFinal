@@ -5,38 +5,42 @@ from gmath import *
 from random import random
 
 def shading(polygons, ind, color, colormod, mod, normal):
-	red = (ind * 18) % 255;
-	green = (ind * 32) % 255;
-	blue = (ind * 90) % 255;
-	color = [red, green, blue]
+	#color = [red, green, blue]
+	#color = [0, 0, 0]
+	#Setting up the constants
 	ka = [colormod[2][mod][0], colormod[2][mod][3], colormod[2][mod][6]]
 	kd = [colormod[2][mod][1], colormod[2][mod][4], colormod[2][mod][7]]
 	ks = [colormod[2][mod][2], colormod[2][mod][5], colormod[2][mod][8]]
+	#print [ka, kd, ks]
+	#Making the normal a unit vetor
 	mag = sqrt((normal[0] * normal[0]) + (normal[1] * normal[1]) + (normal[2] * normal[2]))
 	nn = [normal[0]/mag, normal[1]/mag, normal[2]/mag]
 
 	for i in range(3):
-
+		#ambient lighting
 		ambient = colormod[0]['c'][i] * ka[i]
+		cstore = colormod[0]['c'][i]
+		color[i] = ambient
 		for l in colormod[1]:
 
 			col = colormod[1][l][0:3]
-			source = colormod[1][l][3:6]
+			place = colormod[1][l][3:6]
 			#Sorry
-			L = [source[0]-polygons[ind][0], source[1]-polygons[ind][1], source[2]-polygons[ind][2]]
+			L = [place[0]-polygons[ind][0], place[1]-polygons[ind][1], place[2]-polygons[ind][2]]
 			m = sqrt((L[0] * L[0]) + (L[1] * L[1]) + (L[2] * L[2]))
 			nl = [L[0]/m, L[1]/m, L[2]/m]
 			dp = (nl[0] * nn[0]) + (nl[1] * nn[1]) + (nl[2] * nn[2])
-			diffuse = col[i]*kd[i]*dp
+			diffuse = col[i] * kd[i]*dp*cstore
 			sca = [nn[0] * dp * 2, nn[1] * dp * 2, nn[2] * dp * 2]
 			su = [sca[0] - nl[0], sca[1] - nl[1], sca[2] - nl[2]]
 			mm = sqrt((su[0] * su[0]) + (su[1] * su[1]) + (su[2] * su[2]))
 			nr = [su[0]/mm, su[1]/mm, su[2]/mm]
 			nv = [0,0,1]
 			dp2 = (nr[0] * nv[0]) + (nr[1] * nv[1]) + (nr[2] * nv[2])
-			specular = col[i]*ks[i]*(dp2)**3
+			specular = (col[i]*ks[i]* cstore * (dp2)**3)
 
-			color[i] += ambient + diffuse+ specular
+			color[i] += 0 + diffuse+ specular
+			#print [ambient, diffuse, specular]
 			#print color[i]
 
 	color = [int(min(max(c,0),255)) for c in color]
